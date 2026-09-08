@@ -1,0 +1,4 @@
+openai
+reportlab
+arabic-reshaper
+python-bidi
