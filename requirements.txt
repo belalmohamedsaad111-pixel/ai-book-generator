@@ -1,5 +1,4 @@
-google-generativeai
+google-genai
 reportlab
 arabic-reshaper
 python-bidi
-
