@@ -1,21 +1,23 @@
 import os
-import google.generativeai as genai
+from google import genai
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import arabic_reshaper
 from bidi.algorithm import get_display
 
-# Configure Gemini API
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+client = genai.Client(api_key=api_key)
 
 def reshape_text(text):
     reshaped_text = arabic_reshaper.reshape(text)
     return get_display(reshaped_text)
 
 def generate_chapter(prompt):
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
+    )
     return response.text
 
 def build_pdf():
