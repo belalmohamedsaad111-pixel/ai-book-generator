@@ -1,6 +1,5 @@
 import os
-import json
-import urllib.request
+from google import genai
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -8,22 +7,18 @@ import arabic_reshaper
 from bidi.algorithm import get_display
 
 api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+client = genai.Client(api_key=api_key)
 
 def reshape_text(text):
     reshaped_text = arabic_reshaper.reshape(text)
     return get_display(reshaped_text)
 
 def generate_chapter(prompt):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}]
-    }
-    data = json.dumps(payload).encode('utf-8')
-    req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
-    
-    with urllib.request.urlopen(req) as response:
-        result = json.loads(response.read().decode('utf-8'))
-        return result['candidates'][0]['content']['parts'][0]['text']
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt,
+    )
+    return response.text
 
 def build_pdf():
     pdf_filename = "generated_book.pdf"
